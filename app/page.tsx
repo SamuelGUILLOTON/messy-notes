@@ -18,7 +18,7 @@ export default function Home() {
 //userSession variable
 const router = useRouter()
 
-const [Onesession, setOneSession] = useState([]);
+const [Onesession, setOneSession] = useState('');
 
 const [OneNoteId, setNoteId] = useState('');
 
