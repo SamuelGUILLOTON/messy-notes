@@ -1,113 +1,174 @@
-import Image from 'next/image'
+'use client';
+
+import { useState, useEffect } from 'react'
+import styles from '../src/components/textContainer/text-container-style.module.css'
+import { collection, addDoc, getDoc, onSnapshot, QuerySnapshot, query, deleteDoc, doc, updateDoc, where } from 'firebase/firestore'
+import { db }  from './firebase'
+import stylesButtonSave from '../src/components/saveButton/save-button-style.module.css'
+import stylesList from '../src/components/noteList/note-list-style.module.css'
+import stylesDelete from '../src/components/deleteButton/delete-button-style.module.css'
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation'
+import styleHome from './home.module.css'
+import { signOut } from "next-auth/react"
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function Home() {
+
+//userSession variable
+const router = useRouter()
+
+const [Onesession, setOneSession] = useState([]);
+
+const [OneNoteId, setNoteId] = useState('');
+
+const [items, setItem] = useState([]);
+
+const [oneError, setError] = useState('');
+
+const [newItem, setNewItem] = useState({note: '' });
+
+const [oneNote, setOneNote] = useState([]);
+
+const  { data: session, status } = useSession({
+  required: true,
+  onUnauthenticated() {
+    router.push('/signin')
+  } 
+})
+
+useEffect(() => {
+  if (status === 'authenticated' && session?.user) {
+    console.log(session.user.email);
+    setOneSession(session.user.email);
+  }
+}, [session, status]);
+
+  //add items to ddb
+const addNote = async (e: React.FormEvent<HTMLInputElement>) => {
+  e.preventDefault()
+
+  if ( newItem.note === '' ) {
+    setError('Veuillez écrire votre note')
+  }
+
+  if (OneNoteId === '' && newItem.note !== '') {
+    setError('');
+    console.log(newItem.note)
+    await addDoc(collection(db, 'items'), {
+      note: newItem.note.trim(),
+      user: Onesession
+    })
+    setNewItem({note: ''});
+    toast.success('Note enregistrée');
+  } else {
+    setError('');
+    console.log(OneNoteId);
+    const itemRef = doc(db, "items", OneNoteId);
+    await updateDoc(itemRef, {
+      note: newItem.note.trim(),
+      user: Onesession
+    });
+    toast.success('Note enregModifiée');
+  }
+}
+
+//read items from ddb
+useEffect(() => {
+  console.log(Onesession);
+  const q = query(collection(db, 'items'), where('user', '==', Onesession));
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    let itemsArr: any = []
+
+    querySnapshot.forEach((doc) => {
+      console.log(Onesession);
+        const summary = doc.data().note.slice(0, 10);
+        itemsArr.push({...doc.data(), summary: summary, id: doc.id})
+    })
+    setItem(itemsArr)
+    console.log(items)
+  })
+}, [Onesession])
+
+// Delete items from database
+const deleteItem = async (id: any) => {
+  setError('');
+  await deleteDoc(doc(db, 'items', id));
+  if (id === OneNoteId) {
+    setNewItem({ note: ''});
+    setNoteId('');
+  }
+  toast.success('Note supprimée');
+};
+
+//display item
+const displayItem = async (id: any) => {
+  const note = items.find((element) => element.id === id);
+  setNewItem({ note: note.note});
+  setNoteId(note.id);
+};
+
+//clear note
+const clearNote = async (e: React.FormEvent<HTMLInputElement>) => {
+  e.preventDefault()
+  setError('');
+  console.log(session)
+  setNewItem({ note: ''});
+  setNoteId('');
+  toast.success('Clear');
+};
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className={ styleHome.noteContainer  }>
+        <div className={ styleHome.navbar }>
+          <h3 className={ styleHome.logo }> Mess<span className={styleHome.logoSpan} >y</span> notes </h3>
+          <span className={ styleHome.welcomed}> Bienvenue { Onesession }  </span>
+          <button className={ styleHome.signedOut }  onClick={() => signOut({redirect: false, callbackUrl: "/signin"})}> Se déconnecter </button>
         </div>
-      </div>
+        <div className={styleHome.main}>
+          <div className={stylesList.list}>
+            <ul>
+              { items.map((item, id) => (
+                <li className={`${stylesList.itemList}  ${item.id === OneNoteId ? stylesList.selectedItem : ''}`}> 
+                  <button  onClick={() => displayItem(item.id)}>{item.summary}... </button> 
+                  <button onClick={() => deleteItem(item.id)} className={ stylesList.deleteButton } >
+                      
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+          <form className={ styleHome.formText}>
+            <div  className={styles.textContainer}>
+              <textarea
+                rows="5" 
+                cols="33"
+                data-note={ OneNoteId }
+                placeholder="Enter your messy note"
+                id='textarea-note'
+                className={styles.textArea}
+                value={newItem.note}
+                onChange={(e) => setNewItem({ ...newItem, note: e.target.value})}
+              />
+            </div>
+            <p className={ styleHome.error }> { oneError } </p>
+            <button
+            className={stylesButtonSave.saveButton}
+            onClick={addNote}>
+              <span  className={stylesButtonSave.svgDownload}> </span>
+            </button>
+            <button 
+            className={stylesDelete.deleteButton}
+            onClick={clearNote} 
+            >
+              <span  className={stylesDelete.svgClear}> </span>
+            </button>
+          </form>
+        </div>  
+        <Toaster />    
+    </div>
   )
 }
+
+Home.requireAuth = true;

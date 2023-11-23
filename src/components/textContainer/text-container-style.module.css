@@ -1,0 +1,8 @@
+.textContainer {
+    padding: 10px;
+    background-color: var(--side-color);
+    border-radius: 7px;
+    width: 96%;
+    margin: 0 auto;
+    max-width: 870px;
+}

@@ -1,0 +1,29 @@
+.deleteButton {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--second-color);
+    font-size: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: var(--contrast-color), 1px, solid;
+    color: var(--contrast-color);
+    transition: all .2s ease-in-out;
+    position: absolute;
+    bottom: -33px;
+    right: 60px;
+}
+
+.deleteButton:hover {
+    transition: background-color .5s;
+    transform: scale(1.1); 
+}
+
+.svgClear {
+    background-image: url(../../../public/clear.svg);
+    background-size: contain;
+    height: 15px;
+    width: 15px;
+    background-repeat: no-repeat;
+}

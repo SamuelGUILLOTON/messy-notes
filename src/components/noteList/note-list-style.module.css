@@ -1,0 +1,54 @@
+.list {
+    background-color: var(--side-color);
+    color: var(--bg-color);
+    height: 100%;
+    width: 185px;
+    padding: 5px 0px 5px 15px;
+    border-top-right-radius: 11px;
+    border-bottom-right-radius: 11px;
+    min-height: ;
+}
+
+.itemList {
+    padding: 5px 5px;
+    transition: background-color .3s;
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.itemList:hover {
+    background-color: #ffffff80;
+    color: var(--main-color);
+    transition: background-color .5s;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    padding: 5px 5px;
+    background: linear-gradient(to right, #ffffff80, var(--side-color));
+}
+
+.selectedItem {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: var(--main-color);
+    transition: background-color .5s;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    padding: 5px 5px;
+    margin-left: 10px;
+    background: linear-gradient(to right, #ffffff80, var(--side-color));
+}
+
+.deleteButton {
+    margin-right: 10px;
+    background-image: url(../../../public/trash.svg);
+    width: 20px;
+    height: 25px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    transform: rotate(16deg);
+    color: #faebd7;
+}

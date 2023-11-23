@@ -1,0 +1,32 @@
+.saveButton {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--second-color);
+    font-size: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 5px;
+    border: var(--bg-color), 1px, solid;
+    color: var(--bg-color);
+    transition: all .2s ease-in-out;
+    position: absolute;
+    bottom: 9px;
+    right: 29px;
+}
+
+.saveButton:hover {
+    transition: background-color .5s;
+    transform: scale(1.1);
+}
+
+.svgDownload {
+    background-image: url(../../../public/download.svg);
+    background-size: contain;
+    height: 25px;
+    width: 25px;
+    background-repeat: no-repeat;
+}
+
+
