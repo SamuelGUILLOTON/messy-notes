@@ -18,7 +18,7 @@ export default function Home() {
 //userSession variable
 const router = useRouter()
 
-const [Onesession, setOneSession] = useState('');
+const [Onesession, setOneSession] = useState<any | null>(null);
 
 const [OneNoteId, setNoteId] = useState('');
 
@@ -45,8 +45,8 @@ useEffect(() => {
 }, [session, status]);
 
   //add items to ddb
-const addNote = async (e: React.FormEvent<HTMLInputElement>) => {
-  e.preventDefault()
+const addNote: any = async (event: React.FormEvent<HTMLInputElement>) => {
+  event.preventDefault()
 
   if ( newItem.note === '' ) {
     setError('Veuillez écrire votre note')
@@ -102,13 +102,13 @@ const deleteItem = async (id: any) => {
 
 //display item
 const displayItem = async (id: any) => {
-  const note = items.find((element) => element.id === id);
+  const note: any = items.find((element: any) => element.id === id);
   setNewItem({ note: note.note});
   setNoteId(note.id);
 };
 
 //clear note
-const clearNote = async (e: React.FormEvent<HTMLInputElement>) => {
+const clearNote: any = async (e: React.FormEvent<HTMLInputElement>) => {
   e.preventDefault()
   setError('');
   console.log(session)
@@ -127,7 +127,7 @@ const clearNote = async (e: React.FormEvent<HTMLInputElement>) => {
         <div className={styleHome.main}>
           <div className={stylesList.list}>
             <ul>
-              { items.map((item, id) => (
+              { items.map((item: any, id: any) => (
                 <li key={id} className={`${stylesList.itemList}  ${item.id === OneNoteId ? stylesList.selectedItem : ''}`}> 
                   <button  onClick={() => displayItem(item.id)}>{item.summary}... </button> 
                   <button onClick={() => deleteItem(item.id)} className={ stylesList.deleteButton } >
@@ -141,8 +141,8 @@ const clearNote = async (e: React.FormEvent<HTMLInputElement>) => {
           <form className={ styleHome.formText}>
             <div  className={styles.textContainer}>
               <textarea
-                rows="5" 
-                cols="33"
+                rows={5} 
+                cols={33}
                 data-note={ OneNoteId }
                 placeholder="Enter your messy note"
                 id='textarea-note'

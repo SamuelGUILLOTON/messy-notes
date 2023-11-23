@@ -16,11 +16,11 @@ export default function Signin() {
         await signIn('credentials', {email, password, redirect: false})
         .then((userCredential) => {
           console.log('Successfully signed in:', userCredential);
-          if (userCredential.ok === false) {
+          if (userCredential?.ok === false) {
             toast.error('Erreur de connexion');           
           }
 
-          if (userCredential.ok === true) {
+          if (userCredential?.ok === true) {
             router.push('/');
           }
           // Redirect to the home page
