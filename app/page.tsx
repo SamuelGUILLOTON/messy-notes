@@ -86,7 +86,6 @@ useEffect(() => {
         itemsArr.push({...doc.data(), summary: summary, id: doc.id})
     })
     setItem(itemsArr)
-    console.log(items)
   })
 }, [Onesession])
 
@@ -129,7 +128,7 @@ const clearNote = async (e: React.FormEvent<HTMLInputElement>) => {
           <div className={stylesList.list}>
             <ul>
               { items.map((item, id) => (
-                <li className={`${stylesList.itemList}  ${item.id === OneNoteId ? stylesList.selectedItem : ''}`}> 
+                <li key={id} className={`${stylesList.itemList}  ${item.id === OneNoteId ? stylesList.selectedItem : ''}`}> 
                   <button  onClick={() => displayItem(item.id)}>{item.summary}... </button> 
                   <button onClick={() => deleteItem(item.id)} className={ stylesList.deleteButton } >
                       

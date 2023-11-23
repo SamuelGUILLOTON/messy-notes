@@ -18,7 +18,7 @@ export const NoteList = () => {
     <div className={styles.list}>
         <ul>
           { items.map((item, id) => (
-            <li className={styles.itemList}> {item.title} </li>
+            <li key={id} className={styles.itemList}> {item.title} </li>
           ))}
         </ul>
     </div>

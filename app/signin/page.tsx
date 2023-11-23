@@ -97,7 +97,7 @@ export default function Signin() {
           <p className="mt-10 text-center text-sm">
             Pas inscrit?{' '}
             <button onClick={() => router.push('signup')} className={`font-semibold leading-6 ${styleHome.colorDark}`}>
-              S'inscrire
+              Inscription
             </button>
           </p>
         </div>
